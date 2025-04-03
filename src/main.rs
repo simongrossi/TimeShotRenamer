@@ -1,186 +1,91 @@
+// src/main.rs
+mod logic;
+
 use eframe::egui;
+use logic::{ImageFile, collect_image_files, generate_preview_name};
 use rfd::FileDialog;
-use walkdir::WalkDir;
-use std::fs::{self, File};
 use std::path::PathBuf;
-use exif::{Reader, Tag};
 
-struct ImageFile {
-    path: PathBuf,
-    date_taken: Option<String>,
-    date_in_name: bool,
-    preview_name: Option<String>,
-    selected: bool,
-}
-
+#[derive(Default)]
 struct MyApp {
     folder_path: Option<PathBuf>,
     image_files: Vec<ImageFile>,
-}
-
-impl Default for MyApp {
-    fn default() -> Self {
-        Self {
-            folder_path: None,
-            image_files: vec![],
-        }
-    }
+    select_all: bool,
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        egui::TopBottomPanel::top("top_panel").show(ctx, |ui| {
+            ui.horizontal(|ui| {
+                if ui.button("📁 Choisir un dossier").clicked() {
+                    if let Some(path) = FileDialog::new().pick_folder() {
+                        self.folder_path = Some(path.clone());
+                        self.image_files = collect_image_files(&path);
+                    }
+                }
+
+                if ui.button("✅ Sélectionner les fichiers avec EXIF").clicked() {
+                    for img in &mut self.image_files {
+                        img.selected = img.date_taken.is_some();
+                    }
+                }
+            });
+        });
+
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Renommage de photos basé sur l'EXIF");
-            if ui.button("📁 Choisir un dossier").clicked() {
-                if let Some(path) = FileDialog::new().pick_folder() {
-                    println!("📂 Dossier sélectionné : {}", path.display());
-                    self.folder_path = Some(path.clone());
-                    self.image_files = collect_image_files(&path);
-                } else {
-                    println!("❌ Aucun dossier sélectionné.");
-                }
+            if let Some(path) = &self.folder_path {
+                ui.label(format!("📂 Dossier sélectionné : {}", path.display()));
             }
-
-            if let Some(folder) = &self.folder_path {
-                ui.label(format!("Dossier sélectionné : {}", folder.display()));
-
-                if ui.button("🔄 Renommer les fichiers sélectionnés").clicked() {
-                    for img in &self.image_files {
-                        if img.selected {
-                            if let Some(preview) = &img.preview_name {
-                                let new_path = img.path.parent().unwrap().join(preview);
-                                println!("Renommage : {} -> {}", img.path.display(), new_path.display());
-                                if let Err(e) = fs::rename(&img.path, &new_path) {
-                                    eprintln!("Erreur de renommage : {}", e);
-                                }
-                            }
-                        }
-                    }
-                    // Recharger les fichiers après renommage
-                    if let Some(path) = &self.folder_path {
-                        self.image_files = collect_image_files(path);
-                    }
-                }
-            }
-
-            ui.separator();
 
             egui::ScrollArea::vertical().show(ui, |ui| {
-                if self.image_files.is_empty() {
-                    ui.label("Aucun fichier trouvé.");
-                } else {
-                    for img in &mut self.image_files {
-                        ui.group(|ui| {
-                            ui.checkbox(&mut img.selected, "Renommer ce fichier");
-                            ui.label(format!("📄 Nom du fichier : {}", img.path.file_name().unwrap().to_string_lossy()));
-
-                            if let Some(date) = &img.date_taken {
-                                ui.label(format!("📸 Date EXIF : {}", date));
-                            } else {
-                                ui.label("⚠️ Pas de date EXIF trouvée");
-                            }
-
-                            if img.date_in_name {
-                                ui.label("✅ La date est présente dans le nom du fichier");
-                            } else {
-                                ui.label("❌ La date ne semble pas présente dans le nom du fichier");
-                            }
-
-                            if let Some(preview) = &img.preview_name {
-                                ui.label(format!("👁️ Nouveau nom proposé : {}", preview));
-                            }
-                        });
-                        ui.separator();
+                egui::Grid::new("files_grid").striped(true).show(ui, |ui| {
+                    if ui.checkbox(&mut self.select_all, "").changed() {
+                        for img in &mut self.image_files {
+                            img.selected = self.select_all;
+                        }
                     }
-                }
+                    ui.label("Nom");
+                    ui.label("EXIF");
+                    ui.label("Date dans nom");
+                    ui.label("Nouveau nom");
+                    ui.end_row();
+
+                    for img in &mut self.image_files {
+                        ui.checkbox(&mut img.selected, "");
+                        ui.label(&img.file_name);
+
+                        if let Some(date) = &img.date_taken {
+                            ui.label(format!("✅ {}", date));
+                        } else {
+                            ui.colored_label(egui::Color32::RED, "❌");
+                        }
+
+                        if img.date_in_name {
+                            ui.label("✅ présente");
+                        } else {
+                            ui.label("❌ absente");
+                        }
+
+                        if !img.preview_valid {
+                            img.preview_name = Some(generate_preview_name(&img.file_name, &img.date_taken));
+                            img.preview_valid = true;
+                        }
+
+                        if let Some(preview) = &img.preview_name {
+                            ui.label(preview);
+                        } else {
+                            ui.label("-");
+                        }
+
+                        ui.end_row();
+                    }
+                });
             });
         });
     }
 }
 
-fn collect_image_files(dir: &PathBuf) -> Vec<ImageFile> {
-    println!("📥 Scan du dossier : {}", dir.display());
-
-    let mut files = vec![];
-
-    for entry in WalkDir::new(dir).into_iter().filter_map(Result::ok) {
-        let path = entry.path();
-
-        if path.is_file() {
-            println!("→ Fichier trouvé : {}", path.display());
-            let date_taken = read_exif_date(path);
-            let file_name = path.file_name().unwrap_or_default().to_string_lossy().to_lowercase();
-            let date_in_name = match &date_taken {
-                Some(date) => is_date_in_filename(&file_name, date),
-                None => false,
-            };
-
-            let preview_name = match &date_taken {
-                Some(date) => {
-                    let formatted = date.replace(":", "-").replace(" ", "_");
-                    let original_name = path.file_name().unwrap().to_string_lossy();
-                    Some(format!("{}_{}", formatted, original_name))
-                },
-                None => None,
-            };
-
-            files.push(ImageFile {
-                path: path.to_path_buf(),
-                date_taken,
-                date_in_name,
-                preview_name,
-                selected: true,
-            });
-        }
-    }
-
-    println!("✔️ Total fichiers trouvés : {}", files.len());
-    files
-}
-
-fn read_exif_date(path: &std::path::Path) -> Option<String> {
-    if let Ok(file) = File::open(path) {
-        if let Ok(reader) = Reader::new().read_from_container(&mut std::io::BufReader::new(file)) {
-            if let Some(field) = reader.get_field(Tag::DateTimeOriginal, exif::In::PRIMARY) {
-                return Some(field.display_value().with_unit(&reader).to_string());
-            }
-        }
-    }
-    None
-}
-
-fn is_date_in_filename(file_name: &str, exif_date: &str) -> bool {
-    let date_clean = exif_date
-        .replace(":", "")
-        .replace(" ", "")
-        .replace("-", "")
-        .replace("h", "")
-        .replace("m", "")
-        .replace("s", "")
-        .to_lowercase();
-
-    let patterns = vec![
-        date_clean.clone(),
-        date_clean.chars().take(8).collect::<String>(),
-        date_clean.chars().skip(8).collect::<String>(),
-        date_clean.chars().skip(2).take(6).collect::<String>(),
-        date_clean.chars().take(4).collect::<String>(),
-    ];
-
-    for p in patterns {
-        if file_name.contains(&p) {
-            return true;
-        }
-    }
-
-    false
-}
-
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
-    eframe::run_native(
-        "TimeShotRenamer",
-        options,
-        Box::new(|_cc| Box::new(MyApp::default())),
-    )
+    eframe::run_native("TimeShotRenamer", options, Box::new(|_cc| Box::new(MyApp::default())))
 }

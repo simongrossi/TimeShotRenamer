@@ -1,50 +1,65 @@
-# 🕒 TimeShotRenamer
+# ⏱️ TimeShotRenamer
 
-**TimeShotRenamer** est un outil graphique Windows écrit en Rust permettant de **renommer automatiquement des photos** selon leur **date EXIF** (date de prise de vue).
+![Rust](https://img.shields.io/badge/Rust-2021-orange)
+![Windows](https://img.shields.io/badge/platform-Windows-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-![screenshot](docs/screenshot.png)
+**TimeShotRenamer** est un outil graphique Windows développé en **Rust** avec **egui/eframe**, conçu pour faciliter le **renommage intelligent de photos** selon leurs **métadonnées EXIF** (notamment la date de prise de vue).
 
 ---
 
-## ✨ Fonctionnalités
+## 🎯 Objectif
 
-- 📂 Parcours d’un dossier contenant des photos
-- 📸 Lecture automatique des **données EXIF** (DateTimeOriginal)
-- 🔎 Indique si la date est déjà présente dans le nom du fichier
-- 🔄 **Renommage automatique** au format :
-
+- 📂 Analyser un dossier contenant des photos
+- 🕒 Lire la date EXIF (DateTimeOriginal)
+- 🔍 Vérifier si cette date est déjà présente dans le nom du fichier
+- ✏️ Proposer un **nouveau nom** avec la date intégrée :
+  
   ```
   YYYY-MM-DD_HHMMSS_nomoriginal.extension
   ```
-  Exemples :
-  - `IMG_4431.JPG` → `2024-10-29_105953_IMG_4431.JPG`
-
-- ❌ Fichiers sans EXIF non modifiés
-- 🖥 Interface simple et rapide grâce à `egui`
+- ✅ Renommer les fichiers sélectionnés de manière sécurisée
 
 ---
 
-## 🚀 Installation
+## 🧰 Fonctionnalités actuelles
 
-### 🧱 Pré-requis
-- [Rust](https://www.rust-lang.org/tools/install)
-- Windows 10/11 recommandé
+- Interface graphique simple et rapide avec `egui`
+- Sélection d’un dossier via une boîte de dialogue native
+- Tableau interactif :
+  - ✅ Case à cocher par fichier
+  - 📛 Nom du fichier original
+  - 📷 Présence EXIF avec date (✅ ou ❌)
+  - 🔍 Vérification si la date figure déjà dans le nom
+  - ✏️ Prévisualisation du nouveau nom proposé
+- Sélection rapide des fichiers avec EXIF
+- Mode rayé (striped) pour une meilleure lisibilité du tableau
 
-### 🧪 Compilation
+---
+
+## 🚀 Lancer l’application
 
 ```bash
-cargo build --release
+cargo run --release
 ```
 
-L’exécutable sera disponible dans :
+⚠️ L'application est conçue pour Windows.
 
-```
-target/release/TimeShotRenamer.exe
-```
+---
 
-### ❌ Éviter la fenêtre noire en mode GUI
+## 🔧 Dépendances principales
 
-Ajoutez ceci à la fin du `Cargo.toml` :
+- [`eframe`](https://docs.rs/eframe) + [`egui`](https://docs.rs/egui) – Interface graphique
+- [`kamadak-exif`](https://crates.io/crates/kamadak-exif) – Lecture EXIF
+- [`walkdir`](https://crates.io/crates/walkdir) – Parcours récursif des dossiers
+- [`serde` / `serde_json`](https://serde.rs) – Sauvegarde temporaire des métadonnées (à venir)
+- [`rfd`](https://crates.io/crates/rfd) – Sélecteur de fichiers natif
+
+---
+
+## 🛠️ Compilation Windows
+
+Le fichier `Cargo.toml` est configuré pour créer un binaire propre, sans fenêtre console :
 
 ```toml
 [[bin]]
@@ -55,24 +70,16 @@ windows_subsystem = "windows"
 
 ---
 
-## 💡 À venir (Roadmap)
+## 📌 Prochaines évolutions
 
-- ✅ Prévisualisation des nouveaux noms
-- ✅ Détection de date dans le nom du fichier
-- ⏳ Barre de progression lors du renommage
-- 🧩 Choix du format de date et du nom final
-- 📦 Export CSV ou JSON des noms avant/après
-- 📂 Support du glisser-déposer
-- 🌍 Version multi-plateforme (Linux/macOS)
+- 🔄 Renommage effectif des fichiers sélectionnés
+- 🧠 Ajout d’un menu déroulant pour insérer d'autres champs EXIF dans le nom
+- 🔁 Barre de chargement ou spinner pendant le scan
+- 🔍 Filtre ou recherche dans le tableau
+- ❗ Affichage d’erreurs dans l’UI
 
 ---
 
-## 👨‍💻 Développé par
+## 👨‍💻 Auteur
 
-Simon Grossi  ·  [GitHub](https://github.com/simongrossi)
-
----
-
-## 📄 Licence
-
-MIT – Utilisation libre et open-source.
+Développé avec ❤️ par [Simon Grossi](https://github.com/simongrossi) avec l’aide de ChatGPT.
