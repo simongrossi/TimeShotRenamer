@@ -1,39 +1,48 @@
-# ⏱️ TimeShotRenamer (in progress)
+# ⏱️ TimeShotRenamer
 
-![Rust](https://img.shields.io/badge/Rust-2021-orange)
-![Windows](https://img.shields.io/badge/platform-Windows-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
+&#x20;&#x20;
 
-**TimeShotRenamer** est un outil graphique Windows développé en **Rust** avec **egui/eframe**, conçu pour faciliter le **renommage intelligent de photos** selon leurs **métadonnées EXIF** (notamment la date de prise de vue).
+**TimeShotRenamer** est un outil graphique pour **Windows**, développé en **Rust** avec `eframe/egui`, permettant de **renommer intelligemment des photos** en se basant sur leur **date EXIF** (DateTimeOriginal, etc.).
+
+> Son objectif : te faire gagner du temps lors du tri de photos, avec une interface claire et un renommage sûr et personnalisable.
 
 ---
 
-## 🎯 Objectif
+## 🌟 Objectifs
 
-- 📂 Analyser un dossier contenant des photos
-- 🕒 Lire la date EXIF (DateTimeOriginal)
-- 🔍 Vérifier si cette date est déjà présente dans le nom du fichier
-- ✏️ Proposer un **nouveau nom** avec la date intégrée :
-  
+- 📂 Scanner un dossier de photos
+
+- 📸 Lire la date EXIF (DateTimeOriginal, etc.)
+
+- 🔍 Détecter si la date figure déjà dans le nom du fichier (même avec des séparateurs différents)
+
+- 🧠 Comparer la date EXIF et celle du nom (match ou non)
+
+- ✏️ Proposer un nouveau nom au format :
+
   ```
   YYYY-MM-DD_HHMMSS_nomoriginal.extension
   ```
-- ✅ Renommer les fichiers sélectionnés de manière sécurisée
+
+- ✅ Permettre le renommage des fichiers sélectionnés
 
 ---
 
 ## 🧰 Fonctionnalités actuelles
 
-- Interface graphique simple et rapide avec `egui`
-- Sélection d’un dossier via une boîte de dialogue native
-- Tableau interactif :
+- Interface graphique rapide et responsive via `egui`
+- Sélecteur de dossier natif (`rfd`)
+- Tableau dynamique avec :
   - ✅ Case à cocher par fichier
-  - 📛 Nom du fichier original
-  - 📷 Présence EXIF avec date (✅ ou ❌)
-  - 🔍 Vérification si la date figure déjà dans le nom
-  - ✏️ Prévisualisation du nouveau nom proposé
-- Sélection rapide des fichiers avec EXIF
-- Mode rayé (striped) pour une meilleure lisibilité du tableau
+  - 📄 Nom actuel
+  - 📷 Présence et lecture de la date EXIF
+  - 🔎 Détection flexible de la date dans le nom (avec séparateurs variés)
+  - 🔁 Comparaison date EXIF vs date dans nom
+  - ✨ Aperçu du nouveau nom de fichier proposé
+  - 🛠️ **Colonne debug masquée** (affiche tous les formats testés)
+- ✅ Bouton pour sélectionner tous les fichiers avec EXIF
+- 🔒 Mode simulation (dry-run) sans renommage réel
+- 🧹 Mode tableau à rayures pour lisibilité
 
 ---
 
@@ -43,23 +52,25 @@
 cargo run --release
 ```
 
-⚠️ L'application est conçue pour Windows.
+⚠️ Conçu pour Windows. La compilation sous Linux/Mac n’a pas été testée.
 
 ---
 
 ## 🔧 Dépendances principales
 
-- [`eframe`](https://docs.rs/eframe) + [`egui`](https://docs.rs/egui) – Interface graphique
-- [`kamadak-exif`](https://crates.io/crates/kamadak-exif) – Lecture EXIF
-- [`walkdir`](https://crates.io/crates/walkdir) – Parcours récursif des dossiers
-- [`serde` / `serde_json`](https://serde.rs) – Sauvegarde temporaire des métadonnées (à venir)
-- [`rfd`](https://crates.io/crates/rfd) – Sélecteur de fichiers natif
+| Crate             | Rôle                              |
+| ----------------- | --------------------------------- |
+| `eframe` + `egui` | Interface graphique               |
+| `kamadak-exif`    | Lecture des métadonnées EXIF      |
+| `walkdir`         | Parcours récursif des dossiers    |
+| `chrono`          | Manipulation de dates             |
+| `rfd`             | Fenêtres de sélection de dossiers |
 
 ---
 
 ## 🛠️ Compilation Windows
 
-Le fichier `Cargo.toml` est configuré pour créer un binaire propre, sans fenêtre console :
+Le `Cargo.toml` est configuré pour éviter l’ouverture d’un terminal noir :
 
 ```toml
 [[bin]]
@@ -70,16 +81,41 @@ windows_subsystem = "windows"
 
 ---
 
-## 📌 Prochaines évolutions
+## 📆 Release et binaire
 
-- 🔄 Renommage effectif des fichiers sélectionnés
-- 🧠 Ajout d’un menu déroulant pour insérer d'autres champs EXIF dans le nom
-- 🔁 Barre de chargement ou spinner pendant le scan
-- 🔍 Filtre ou recherche dans le tableau
-- ❗ Affichage d’erreurs dans l’UI
+Tu peux compiler un exécutable propre avec :
+
+```bash
+cargo build --release
+```
+
+Le binaire sera dans `target/release/TimeShotRenamer.exe`.
+
+📝 Tu peux ensuite créer une release GitHub avec ce `.exe` pour le partager.
 
 ---
 
-## 👨‍💻 Auteur
+## 📌 Roadmap / TODO
 
-Développé avec ❤️ et surtout curiosité par [Simon Grossi](https://github.com/simongrossi) avec l’aide de différentes IA (Open AI, Gemini, Mistral).
+- ✅ Détection de formats de date variés dans les noms
+- ✅ Comparaison date EXIF vs date du nom
+- ✅ Interface clean avec options avancées (colonne debug)
+- 🔄 Menu pour insérer d’autres champs EXIF (appareil, lentille, etc.)
+- ⏳ Barre de progression pendant l’analyse
+- 🧪 Aperçu en direct du nouveau nom (avec insertion dynamique EXIF)
+- 🔍 Recherche ou filtre par nom/date
+
+---
+
+## 👨‍💼 Auteur
+
+Développé avec ❤️ par [Simon Grossi](https://github.com/simongrossi)\
+Avec un coup de main d'OpenAI et beaucoup de plaisir 🧰
+
+---
+
+## 🪪 Licence
+
+Ce projet est distribué sous licence **MIT**.\
+Feel free to fork, améliorer ou contribuer !
+
