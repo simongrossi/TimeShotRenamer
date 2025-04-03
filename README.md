@@ -1,4 +1,4 @@
-# ⏱️ TimeShotRenamer
+# ⏱️ TimeShotRenamer (in progress)
 
 ![Rust](https://img.shields.io/badge/Rust-2021-orange)
 ![Windows](https://img.shields.io/badge/platform-Windows-blue)
