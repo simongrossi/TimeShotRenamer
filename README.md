@@ -1,4 +1,4 @@
-# ⏱️ TimeShotRenamer
+# ⏱️ TimeShotRenamer (en développement Noob)
 
 &#x20;&#x20;
 
@@ -110,7 +110,7 @@ Le binaire sera dans `target/release/TimeShotRenamer.exe`.
 ## 👨‍💼 Auteur
 
 Développé avec ❤️ par [Simon Grossi](https://github.com/simongrossi)\
-Avec un coup de main d'OpenAI et beaucoup de plaisir 🧰
+Avec un coup de main des différentes IA et beaucoup de plaisir pour apprendre 🧰
 
 ---
 
