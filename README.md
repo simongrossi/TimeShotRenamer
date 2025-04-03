@@ -2,8 +2,6 @@
 
 **TimeShotRenamer** est un outil graphique Windows écrit en Rust permettant de **renommer automatiquement des photos** selon leur **date EXIF** (date de prise de vue).
 
-![screenshot](docs/screenshot.png)
-
 ---
 
 ## ✨ Fonctionnalités
@@ -11,6 +9,8 @@
 - 📂 Parcours d’un dossier contenant des photos
 - 📸 Lecture automatique des **données EXIF** (DateTimeOriginal)
 - 🔎 Indique si la date est déjà présente dans le nom du fichier
+- 👁️ **Prévisualisation** du nouveau nom proposé (sans modifier le fichier)
+- ✅ **Case à cocher** pour sélectionner les fichiers à renommer
 - 🔄 **Renommage automatique** au format :
 
   ```
@@ -57,8 +57,6 @@ windows_subsystem = "windows"
 
 ## 💡 À venir (Roadmap)
 
-- ✅ Prévisualisation des nouveaux noms
-- ✅ Détection de date dans le nom du fichier
 - ⏳ Barre de progression lors du renommage
 - 🧩 Choix du format de date et du nom final
 - 📦 Export CSV ou JSON des noms avant/après
