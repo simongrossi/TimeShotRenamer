@@ -82,4 +82,4 @@ windows_subsystem = "windows"
 
 ## 👨‍💻 Auteur
 
-Développé avec ❤️ par [Simon Grossi](https://github.com/simongrossi) avec l’aide de ChatGPT.
+Développé avec ❤️ et surtout curiosité par [Simon Grossi](https://github.com/simongrossi) avec l’aide de différentes IA (Open AI, Gemini, Mistral).
