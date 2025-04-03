@@ -9,6 +9,8 @@ struct ImageFile {
     path: PathBuf,
     date_taken: Option<String>,
     date_in_name: bool,
+    preview_name: Option<String>,
+    selected: bool,
 }
 
 struct MyApp {
@@ -41,16 +43,16 @@ impl eframe::App for MyApp {
 
             if let Some(folder) = &self.folder_path {
                 ui.label(format!("Dossier sélectionné : {}", folder.display()));
-                if ui.button("🔄 Renommer les fichiers").clicked() {
+
+                if ui.button("🔄 Renommer les fichiers sélectionnés").clicked() {
                     for img in &self.image_files {
-                        if let Some(date) = &img.date_taken {
-                            let formatted = date.replace(":", "-").replace(" ", "_");
-                            let original_name = img.path.file_name().unwrap().to_string_lossy();
-                            let new_name = format!("{}_{}", formatted, original_name);
-                            let new_path = img.path.parent().unwrap().join(new_name);
-                            println!("Renommage : {} -> {}", img.path.display(), new_path.display());
-                            if let Err(e) = fs::rename(&img.path, &new_path) {
-                                eprintln!("Erreur de renommage : {}", e);
+                        if img.selected {
+                            if let Some(preview) = &img.preview_name {
+                                let new_path = img.path.parent().unwrap().join(preview);
+                                println!("Renommage : {} -> {}", img.path.display(), new_path.display());
+                                if let Err(e) = fs::rename(&img.path, &new_path) {
+                                    eprintln!("Erreur de renommage : {}", e);
+                                }
                             }
                         }
                     }
@@ -67,18 +69,25 @@ impl eframe::App for MyApp {
                 if self.image_files.is_empty() {
                     ui.label("Aucun fichier trouvé.");
                 } else {
-                    for img in &self.image_files {
+                    for img in &mut self.image_files {
                         ui.group(|ui| {
+                            ui.checkbox(&mut img.selected, "Renommer ce fichier");
                             ui.label(format!("📄 Nom du fichier : {}", img.path.file_name().unwrap().to_string_lossy()));
+
                             if let Some(date) = &img.date_taken {
                                 ui.label(format!("📸 Date EXIF : {}", date));
                             } else {
                                 ui.label("⚠️ Pas de date EXIF trouvée");
                             }
+
                             if img.date_in_name {
                                 ui.label("✅ La date est présente dans le nom du fichier");
                             } else {
                                 ui.label("❌ La date ne semble pas présente dans le nom du fichier");
+                            }
+
+                            if let Some(preview) = &img.preview_name {
+                                ui.label(format!("👁️ Nouveau nom proposé : {}", preview));
                             }
                         });
                         ui.separator();
@@ -106,10 +115,21 @@ fn collect_image_files(dir: &PathBuf) -> Vec<ImageFile> {
                 None => false,
             };
 
+            let preview_name = match &date_taken {
+                Some(date) => {
+                    let formatted = date.replace(":", "-").replace(" ", "_");
+                    let original_name = path.file_name().unwrap().to_string_lossy();
+                    Some(format!("{}_{}", formatted, original_name))
+                },
+                None => None,
+            };
+
             files.push(ImageFile {
                 path: path.to_path_buf(),
                 date_taken,
                 date_in_name,
+                preview_name,
+                selected: true,
             });
         }
     }
@@ -159,7 +179,7 @@ fn is_date_in_filename(file_name: &str, exif_date: &str) -> bool {
 fn main() -> eframe::Result<()> {
     let options = eframe::NativeOptions::default();
     eframe::run_native(
-        "Photo Renamer",
+        "TimeShotRenamer",
         options,
         Box::new(|_cc| Box::new(MyApp::default())),
     )
