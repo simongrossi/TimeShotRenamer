@@ -1,0 +1,1 @@
+// Pour l’instant vide, utilisé si besoin de struct spécifiques supplémentaires

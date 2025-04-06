@@ -1,0 +1,28 @@
+# Compiled Object files, Static Libraries, Shared Libraries (dynamic linking)
+*.o
+*.rlib
+*.a
+*.so
+*.dylib
+*.dll
+
+# Compiled Executables
+*.exe
+*.exe.dSYM/
+*.pdb
+
+# Folders
+/target/
+.idea/
+.vscode/
+
+# Rider files
+/.idea/
+*.sln
+*.suo
+*.user
+*.rider.*
+
+# Operating system / Misc files
+.DS_Store
+Thumbs.db
