@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [workspace]
 resolver = "2"
 members = [
@@ -14,3 +15,24 @@ log = "0.4"
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+=======
+[package]
+name = "TimeShotRenamer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+egui = "0.25"
+eframe = "0.24"
+walkdir = "2"
+kamadak-exif = "0.6"
+rfd = "0.13"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+winapi = { version = "0.3.9", features = ["winuser", "windef"] }
+chrono = { version = "0.4", features = ["alloc"] }
+
+[[bin]]
+name = "TimeShotRenamer"
+path = "src/main.rs"
+>>>>>>> 625bdd35065cdd6eb7ecea58f3f4f80fc1fddd0e
