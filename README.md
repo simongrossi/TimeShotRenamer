@@ -1,70 +1,53 @@
-<<<<<<< HEAD
-Markdown
-
 # 📸 TimeShotRenamer
 
-**TimeShotRenamer** est un outil Rust modulaire conçu pour analyser, renommer et organiser intelligemment vos fichiers photos. Il est composé d'une bibliothèque *core* pour la logique métier et d'une interface graphique *GUI* (en cours de développement) basée sur GTK4.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+**TimeShotRenamer** est un outil développé en Rust avec une interface graphique GTK4 pour analyser, proposer des renommages intelligents et organiser vos fichiers photos. Il se base sur les données EXIF et l'analyse des noms de fichiers existants.
 
 ---
 
-## ✨ Fonctionnalités
+## 🚀 Fonctionnalités Implémentées
 
 ### Bibliothèque Core (`timeshot_core`)
 
-La bibliothèque `timeshot_core` fournit les fonctionnalités suivantes :
+* 📖 Lecture des métadonnées **EXIF** (`DateTimeOriginal`, `CreateDate`, `Artist`, etc.).
+* 📅 Analyse du **nom de fichier** pour détecter des dates existantes.
+* 🧠 Génération de **nouveaux noms de fichiers** structurés au format : `YYYY-MM-DD_HHMMSS[_suffix]_NomDossierParent_NomOriginal.ext`.
+* ⏱️ Gestion des **rafales** par ajout de suffixes (`_01`, `_02`, ...).
+* 🧬 Calcul du hash **BLAKE3** pour chaque fichier.
+* ✔️ Détection et marquage des **doublons** basés sur le hash BLAKE3.
+* 📂 Analyse **récursive** (optionnelle) des sous-dossiers.
+* 💾 Stockage du **chemin complet original** de chaque fichier analysé.
+* 📊 Fonctions pour exporter les données d'analyse aux formats **CSV** ou **JSON** (logique présente, pas encore de bouton dans l'UI).
 
--   📖 Lecture des métadonnées **EXIF** (`DateTimeOriginal`, `CreateDate`, `Artist`, etc.) via la crate `exif`.
--   📅 Analyse du **nom de fichier** pour détecter des dates existantes (même mal formatées).
--   🧠 Génération de **nouveaux noms de fichiers** structurés, incluant la date, l'heure, le nom du dossier parent et le nom original (`YYYY-MM-DD_HHMMSS_nomdossier_nomoriginal.ext`).
--   ⏱️ Gestion des **rafales** (fichiers pris à la même seconde) par ajout de suffixes (`_01`, `_02`, ...).
--    Hashing des fichiers via **BLAKE3** pour la détection future des doublons.
--   📊 Export des données d'analyse (résultats potentiels) aux formats **CSV** ou **JSON**.
+### Interface Graphique (`timeshot_gui`)
 
-### Interface Graphique (`timeshot_gui`) - *Prototype*
-
-L'interface graphique `timeshot_gui` est **actuellement un prototype** et offre les fonctionnalités suivantes :
-
--   🖼️ Fenêtre principale simple basée sur **GTK4**.
--   📂 Bouton "Ouvrir un dossier" permettant de sélectionner un répertoire via une boîte de dialogue native.
--   🏷️ Affichage du chemin du dossier sélectionné.
--   📋 **Affichage d'une liste de fichiers (ListView)** avec une case à cocher et le nom du fichier.
--   ⚠️ **Important :** Actuellement, la liste affiche des **données factices** à des fins de démonstration et de développement. L'intégration avec `timeshot_core` pour analyser le contenu du dossier sélectionné et afficher les vrais fichiers **n'est pas encore implémentée**.
+* 🖼️ Interface basée sur **GTK4**.
+* 📂 Sélection d'un dossier via une boîte de dialogue native.
+* ✔️ Option "Inclure les sous-dossiers" pour l'analyse récursive.
+* 📋 **Affichage détaillé** des fichiers analysés dans une liste :
+    * Case à cocher pour la sélection.
+    * Nom original.
+    * Nom proposé par la logique de renommage.
+    * Date de prise de vue (extraite des EXIF si disponible).
+    * Statut (affiche "Doublon" si détecté).
+* 🖱️ **Boutons d'aide à la sélection fonctionnels :** "Tout Sélectionner", "Tout Désélectionner", "Sélectionner si Date EXIF".
+* ❗ **Bouton "Renommer Sélection" :** Présent et connecté. Effectue le renommage des fichiers sélectionnés sur le disque en utilisant `std::fs::rename` et affiche un dialogue de résumé. **(Nécessite des tests approfondis par l'utilisateur)**. Met à jour la liste en retirant les éléments renommés.
 
 ---
 
-## 📦 Structure du projet
+## ⚠️ Statut Actuel
 
-La structure actuelle est la suivante :
-
-TimeShotRenamer/
-├── timeshot_core/      # Bibliothèque principale (logique métier)
-│   ├── Cargo.toml
-│   └── src/
-│       ├── lib.rs
-│       ├── types.rs      # Structures de données (FileAnalysis, ExifData)
-│       ├── exif/         # Lecture EXIF
-│       ├── filename/     # Analyse des noms de fichiers
-│       ├── renamer/      # Génération des nouveaux noms
-│       ├── hash/         # Calcul et détection de hash (doublons)
-│       └── export/       # Export CSV / JSON
-│
-├── timeshot_gui/       # Interface graphique GTK4
-│   ├── Cargo.toml
-│   └── src/
-│       ├── main.rs
-│       ├── ui.rs         # Construction de l'interface GTK
-│       └── file_data_item.rs # Objet GObject pour les données de fichier dans la liste
-│
-└── README.md           # Ce fichier
-
+* **Prototype Fonctionnel / Beta :** L'application charge les données, propose des noms, permet la sélection et inclut la logique de renommage.
+* La **fonctionnalité de renommage doit être testée avec précaution** par l'utilisateur, de préférence sur des copies de fichiers.
+* L'export CSV/JSON n'est pas encore accessible depuis l'interface.
+* L'alignement visuel des colonnes dans la liste peut être amélioré.
 
 ---
 
 ## ⚙️ Prérequis et Installation
 
-Assurez-vous d'avoir les éléments suivants installés :
-
-1.  **Rust:** Installez Rust via [rustup](https://rustup.rs/).
+1.  **Rust:** Installez Rust et Cargo via [rustup](https://rustup.rs/).
 2.  **Dépendances GTK4 & pkg-config:** L'installation dépend de votre système d'exploitation :
 
     * **🐧 Linux (Debian/Ubuntu):**
@@ -79,201 +62,96 @@ Assurez-vous d'avoir les éléments suivants installés :
         2.  Ouvrez le terminal **MSYS2 MinGW 64-bit**.
         3.  Installez GTK4 et les outils nécessaires avec `pacman`:
             ```bash
-            pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc mingw-w64-x86_64-gettext mingw-w64-x86_64-libxml2 mingw-w64-x86_64-librsvg
+            pacman -S mingw-w64-x86_64-gtk4 mingw-w64-x86_64-pkgconf mingw-w64-x86_64-gcc mingw-w64-x86_64-gsettings-desktop-schemas mingw-w64-x86_64-gettext mingw-w64-x86_64-libxml2 mingw-w64-x86_64-librsvg
             ```
         4.  Assurez-vous que le répertoire `mingw64/bin` de votre installation MSYS2 (ex: `C:\msys64\mingw64\bin`) est ajouté à votre `PATH` Windows.
-        5.  Il peut être nécessaire de configurer Rust pour utiliser la toolchain GNU : `rustup default stable-x86_64-pc-windows-gnu`
+        5.  Définissez la variable d'environnement `XDG_DATA_DIRS` pour pointer vers le dossier `share` de MinGW64 (ex: `C:\msys64\mingw64\share`).
+        6.  Il peut être nécessaire de configurer Rust pour utiliser la toolchain GNU : `rustup default stable-x86_64-pc-windows-gnu`.
+        7.  Redémarrez votre terminal après avoir modifié les variables d'environnement.
 
     * **🍎 macOS:**
         Utilisez [Homebrew](https://brew.sh/):
         ```bash
-        brew install gtk4 pkg-config
+        brew install gtk4 pkg-config adwaita-icon-theme
         ```
 
 ---
 
-## 🚀 Lancer l’application GUI (Prototype)
+## ▶️ Lancer l’application
 
-1.  Naviguez dans le dossier de l'interface graphique :
+1.  Clonez le dépôt (ou naviguez dans le dossier du projet).
+2.  Ouvrez un terminal dans le dossier racine du projet (`TimeShotRenamer`).
+3.  Compilez et lancez l'interface graphique :
     ```bash
-    cd timeshot_gui
+    # Recommandé pour tester la version optimisée
+    cargo run --release --package timeshot_gui
+
+    # Ou pour le développement/débogage
+    # cd timeshot_gui
+    # cargo run
     ```
-2.  Lancez l'application avec Cargo :
-    ```bash
-    cargo run
-    ```
-    > L'application s'ouvrira, vous pourrez sélectionner un dossier, mais la liste affichera des données d'exemple.
 
 ---
 
-## 🧩 Utiliser la Bibliothèque Core
+## 📦 Structure du projet
 
-Vous pouvez compiler et utiliser la bibliothèque `timeshot_core` indépendamment pour l'intégrer dans d'autres projets ou scripts :
+TimeShotRenamer/
+├── timeshot_core/      # Bibliothèque principale (logique métier)
+│   ├── Cargo.toml
+│   └── src/
+├── timeshot_gui/       # Interface graphique GTK4
+│   ├── Cargo.toml
+│   └── src/
+├── .gitignore          # Fichiers ignorés par Git
+├── LICENSE             # Licence MIT
+└── README.md           # Ce fichier
 
-```bash
-cd timeshot_core
-cargo build
-📝 Exemple de Nom de Fichier Généré (par timeshot_core)
-Basé sur la logique actuelle de timeshot_core/src/renamer/generator.rs :
-
-Fichier original : IMG_001.jpg dans le dossier Vacances_Ete
-Date EXIF : 2025-04-05 14:30:12
-
-Nom généré possible : 2025-04-05_143012_Vacances_Ete_IMG_001.jpg
-
-En cas de rafale (même seconde) : 2025-04-05_143012_01_Vacances_Ete_IMG_002.jpg
-
-🛠️ TODO / Prochaines Étapes
-Priorités pour faire évoluer le prototype GUI :
-
-[ ] Intégrer timeshot_core : Appeler la logique d'analyse de timeshot_core lors de la sélection d'un dossier dans la GUI.
-[ ] Afficher les vraies données : Remplacer les données factices par les informations réelles des fichiers analysés (nom original, statut, date trouvée, etc.) dans le ListView. Adapter FileDataItem si besoin.
-[ ] Afficher le nom proposé : Ajouter une colonne dans le ListView pour montrer le nom de fichier qui serait généré.
-[ ] Implémenter le renommage : Ajouter un bouton "Renommer" qui utilise timeshot_core pour renommer les fichiers sélectionnés dans la liste.
-[ ] Gestion des doublons : Utiliser l'information is_duplicate de FileAnalysis pour marquer visuellement les doublons dans la liste.
-[ ] Boutons d'Export : Ajouter des boutons pour déclencher l'export CSV/JSON depuis la GUI.
-[ ] Améliorer la gestion des erreurs et les retours utilisateur dans la GUI.
-[ ] (Optionnel) Créer une interface en ligne de commande (CLI) pure utilisant timeshot_core.
-🧪 Dépendances principales
-GUI: gtk4, glib
-Core: chrono, exif, blake3, serde, csv, serde_json, walkdir, regex
-👤 Auteur
-Simon Grossi — github.com/simongrossi
-
-📜 Licence
-MIT
-
-
-**Changements clés :**
-
-1.  **Distinction Core/GUI :** Séparation claire des fonctionnalités implémentées dans `timeshot_core` et de l'état actuel de `timeshot_gui`.
-2.  **Statut GUI:** Le terme "Prototype" est utilisé, et il est explicitement mentionné que la GUI utilise des données factices et n'est pas encore connectée au core.
-3.  **Installation:** Instructions mises à jour et plus détaillées pour Linux, Windows (MSYS2) et macOS (suggestion Homebrew). Mention de `pkg-config` (ou `pkgconf` sur MSYS2) comme dépendance clé.
-4.  **TODO List:** Mise à jour pour refléter les prochaines étapes logiques, en commençant par l'intégration core-GUI.
-5.  **Précisions:** Ajout de petites précisions (ex: gestion des rafales, format du nom de fichier généré).
-6.  **Dépendances:** Liste des dépendances légèrement étendue pour inclure celles utilisées dans le core comme `walkdir` et `regex`.
-
-J'espère que cette version correspond mieux à l'état actuel de votre projet !
-=======
-# ⏱️ TimeShotRenamer (en développement Noob)
-
-&#x20;&#x20;
-
-**TimeShotRenamer** est un outil graphique pour **Windows**, développé en **Rust** avec `eframe/egui`, permettant de **renommer intelligemment des photos** en se basant sur leur **date EXIF** (DateTimeOriginal, etc.).
-
-> Son objectif : te faire gagner du temps lors du tri de photos, avec une interface claire et un renommage sûr et personnalisable.
 
 ---
 
-## 🌟 Objectifs
+## 📝 Exemple de Nom de Fichier Généré (par `timeshot_core`)
 
-- 📂 Scanner un dossier de photos
+Fichier original : `IMG_001.jpg` dans le dossier `Vacances_Ete`.
+Date EXIF : `2025-07-15 10:30:00`
 
-- 📸 Lire la date EXIF (DateTimeOriginal, etc.)
-
-- 🔍 Détecter si la date figure déjà dans le nom du fichier (même avec des séparateurs différents)
-
-- 🧠 Comparer la date EXIF et celle du nom (match ou non)
-
-- ✏️ Proposer un nouveau nom au format :
-
-  ```
-  YYYY-MM-DD_HHMMSS_nomoriginal.extension
-  ```
-
-- ✅ Permettre le renommage des fichiers sélectionnés
+Nom généré possible : `2025-07-15_103000_Vacances_Ete_IMG_001.jpg`
 
 ---
 
-## 🧰 Fonctionnalités actuelles
+## 🛠️ TODO / Améliorations Possibles
 
-- Interface graphique rapide et responsive via `egui`
-- Sélecteur de dossier natif (`rfd`)
-- Tableau dynamique avec :
-  - ✅ Case à cocher par fichier
-  - 📄 Nom actuel
-  - 📷 Présence et lecture de la date EXIF
-  - 🔎 Détection flexible de la date dans le nom (avec séparateurs variés)
-  - 🔁 Comparaison date EXIF vs date dans nom
-  - ✨ Aperçu du nouveau nom de fichier proposé
-  - 🛠️ **Colonne debug masquée** (affiche tous les formats testés)
-- ✅ Bouton pour sélectionner tous les fichiers avec EXIF
-- 🔒 Mode simulation (dry-run) sans renommage réel
-- 🧹 Mode tableau à rayures pour lisibilité
-
----
-
-## 🚀 Lancer l’application
-
-```bash
-cargo run --release
-```
-
-⚠️ Conçu pour Windows. La compilation sous Linux/Mac n’a pas été testée.
+* [x] Analyse EXIF et noms de fichiers.
+* [x] Génération de noms proposés + gestion rafales.
+* [x] Hash et détection doublons.
+* [x] Interface GTK basique avec liste.
+* [x] Analyse récursive optionnelle.
+* [x] Boutons de sélection multiple fonctionnels.
+* [x] Implémentation bouton Renommer (+ dialogue résumé).
+* [ ] **Tester intensivement la fonction Renommer.**
+* [ ] Boutons pour Export CSV / JSON.
+* [ ] Améliorer l'alignement des colonnes dans la liste.
+* [ ] Améliorer le retour visuel pour les doublons.
+* [ ] Corriger les avertissements `deprecated clone!`.
+* [ ] Ajouter plus de gestion d'erreurs (permissions, I/O pendant renommage).
+* [ ] Ajouter une icône d'application.
+* [ ] Considérer des options de configuration (format du nom, etc.).
+* [ ] Créer des paquets d'installation (MSI, Deb, etc.).
 
 ---
 
-## 🔧 Dépendances principales
+## 🧪 Dépendances principales
 
-| Crate             | Rôle                              |
-| ----------------- | --------------------------------- |
-| `eframe` + `egui` | Interface graphique               |
-| `kamadak-exif`    | Lecture des métadonnées EXIF      |
-| `walkdir`         | Parcours récursif des dossiers    |
-| `chrono`          | Manipulation de dates             |
-| `rfd`             | Fenêtres de sélection de dossiers |
+* **GUI:** [gtk4](https://crates.io/crates/gtk4), [glib](https://crates.io/crates/glib)
+* **Core:** [chrono](https://crates.io/crates/chrono), [exif](https://crates.io/crates/exif), [blake3](https://crates.io/crates/blake3), [serde](https://serde.rs/), [csv](https://crates.io/crates/csv), [serde_json](https://crates.io/crates/serde_json), [walkdir](https://crates.io/crates/walkdir), [regex](https://crates.io/crates/regex), [once_cell](https://crates.io/crates/once_cell)
 
 ---
 
-## 🛠️ Compilation Windows
+## 👤 Auteur
 
-Le `Cargo.toml` est configuré pour éviter l’ouverture d’un terminal noir :
-
-```toml
-[[bin]]
-name = "TimeShotRenamer"
-path = "src/main.rs"
-windows_subsystem = "windows"
-```
+Simon Grossi — [github.com/simongrossi](https://github.com/simongrossi)
 
 ---
 
-## 📆 Release et binaire
+## 📜 Licence
 
-Tu peux compiler un exécutable propre avec :
-
-```bash
-cargo build --release
-```
-
-Le binaire sera dans `target/release/TimeShotRenamer.exe`.
-
-📝 Tu peux ensuite créer une release GitHub avec ce `.exe` pour le partager.
-
----
-
-## 📌 Roadmap / TODO
-
-- ✅ Détection de formats de date variés dans les noms
-- ✅ Comparaison date EXIF vs date du nom
-- ✅ Interface clean avec options avancées (colonne debug)
-- 🔄 Menu pour insérer d’autres champs EXIF (appareil, lentille, etc.)
-- ⏳ Barre de progression pendant l’analyse
-- 🧪 Aperçu en direct du nouveau nom (avec insertion dynamique EXIF)
-- 🔍 Recherche ou filtre par nom/date
-
----
-
-## 👨‍💼 Auteur
-
-Développé avec ❤️ par [Simon Grossi](https://github.com/simongrossi)\
-Avec un coup de main des différentes IA et beaucoup de plaisir pour apprendre 🧰
-
----
-
-## 🪪 Licence
-
-Ce projet est distribué sous licence **MIT**.\
-Feel free to fork, améliorer ou contribuer !
-
->>>>>>> 625bdd35065cdd6eb7ecea58f3f4f80fc1fddd0e
+Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
