@@ -3195,6 +3195,7 @@ dependencies = [
 name = "timeshot_gui"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "gtk4",
  "once_cell",
  "regex",
