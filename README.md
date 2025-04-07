@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**TimeShotRenamer** est un outil développé en Rust avec une interface graphique GTK4 pour analyser, proposer des renommages intelligents et organiser vos fichiers photos. Il se base sur les données EXIF et l'analyse des noms de fichiers existants.
+**TimeShotRenamer** est un outil développé en Rust avec une interface graphique GTK4 pour analyser, proposer des renommages intelligents et organiser vos fichiers photos et vidéos. Il se base sur les données EXIF (pour les images) et l'analyse des noms de fichiers existants.
 
 ---
 
@@ -12,7 +12,7 @@
 
 * 📖 Lecture des métadonnées **EXIF** (`DateTimeOriginal`, `CreateDate`, `Artist`, etc.).
 * 📅 Analyse du **nom de fichier** pour détecter des dates existantes.
-* 🧠 Génération de **nouveaux noms de fichiers** structurés au format : `YYYY-MM-DD_HHMMSS[_suffix]_NomDossierParent_NomOriginal.ext`.
+* 🧠 Génération de **nouveaux noms de fichiers** structurés au format configurable (par défaut: `YYYY-MM-DD_HHMMSS[_suffix][_NomDossierParent]_NomOriginal.ext`).
 * ⏱️ Gestion des **rafales** par ajout de suffixes (`_01`, `_02`, ...).
 * 🧬 Calcul du hash **BLAKE3** pour chaque fichier.
 * ✔️ Détection et marquage des **doublons** basés sur le hash BLAKE3.
@@ -22,26 +22,38 @@
 
 ### Interface Graphique (`timeshot_gui`)
 
-* 🖼️ Interface basée sur **GTK4**.
-* 📂 Sélection d'un dossier via une boîte de dialogue native.
-* ✔️ Option "Inclure les sous-dossiers" pour l'analyse récursive.
+* 🖼️ Interface basée sur **GTK4** avec layout vertical (Répertoires / Filtres & Résultats).
+* 📂 Ajout/Retrait de multiples répertoires à analyser via une boîte de dialogue native.
+* ✔️ Option "Récursif" pour l'analyse des sous-dossiers.
 * 📋 **Affichage détaillé** des fichiers analysés dans une liste :
     * Case à cocher pour la sélection.
     * Nom original.
     * Nom proposé par la logique de renommage.
     * Date de prise de vue (extraite des EXIF si disponible).
     * Statut (affiche "Doublon" si détecté).
+* 🔍 **Filtres pour affiner la liste des résultats :**
+    * Exclusion par extensions (ex: `png, jpg`).
+    * Filtrage par expression régulière sur le nom de fichier original.
+    * Masquer les fichiers ayant déjà un nom proposé.
+    * **(Nouveau)** Masquer les fichiers dont le nom original contient déjà une date (format `YYYY-MM-DD`, `YYYY_MM_DD` ou `YYYYMMDD`).
 * 🖱️ **Boutons d'aide à la sélection fonctionnels :** "Tout Sélectionner", "Tout Désélectionner", "Sélectionner si Date EXIF".
 * ❗ **Bouton "Renommer Sélection" :** Présent et connecté. Effectue le renommage des fichiers sélectionnés sur le disque en utilisant `std::fs::rename` et affiche un dialogue de résumé. **(Nécessite des tests approfondis par l'utilisateur)**. Met à jour la liste en retirant les éléments renommés.
 
 ---
 
+## 📸 Captures d'écran
+
+*(Note : Les captures d'écran actuelles dans le projet peuvent être obsolètes. Il faudrait les mettre à jour pour refléter le nouveau layout vertical et les filtres).*
+
+**(Exemple de placeholder pour une future capture)**
+---
+
 ## ⚠️ Statut Actuel
 
-* **Prototype Fonctionnel / Beta :** L'application charge les données, propose des noms, permet la sélection et inclut la logique de renommage.
-* La **fonctionnalité de renommage doit être testée avec précaution** par l'utilisateur, de préférence sur des copies de fichiers.
+* **Prototype Fonctionnel / Beta :** L'application charge les données, propose des noms, permet la sélection, le filtrage avancé et inclut la logique de renommage. Le layout a été amélioré (vertical).
+* La **fonctionnalité de renommage doit toujours être testée avec précaution** par l'utilisateur, de préférence sur des copies de fichiers.
 * L'export CSV/JSON n'est pas encore accessible depuis l'interface.
-* L'alignement visuel des colonnes dans la liste peut être amélioré.
+* Des avertissements de compilation existent concernant des éléments GTK dépréciés (à corriger).
 
 ---
 
@@ -89,7 +101,7 @@
 ## ▶️ Lancer l’application
 
 1.  Clonez le dépôt (ou naviguez dans le dossier du projet).
-2.  Ouvrez un terminal dans le dossier racine du projet (`TimeShotRenamer`).
+2.  Ouvrez un terminal dans le dossier racine du projet (`timeshotrenamer_complet_final`).
 3.  Compilez l'interface graphique. **Note :** Comme ce projet est un espace de travail (workspace) Cargo, si vous lancez depuis la racine, vous devez spécifier quel paquet compiler/exécuter avec l'option `--package` (ou `-p`).
     ```bash
     # Compiler et lancer en mode Debug (depuis la racine)
@@ -139,40 +151,11 @@ TimeShotRenamer/
 
 ---
 
-## 📝 Exemple de Nom de Fichier Généré (par `timeshot_core`)
-
-Fichier original : `IMG_001.jpg` dans le dossier `Vacances_Ete`.
-Date EXIF : `2025-07-15 10:30:00`
-
-Nom généré possible : `2025-07-15_103000_Vacances_Ete_IMG_001.jpg`
-
----
-
-## 🛠️ TODO / Améliorations Possibles
-
-* [x] Analyse EXIF et noms de fichiers.
-* [x] Génération de noms proposés + gestion rafales.
-* [x] Hash et détection doublons.
-* [x] Interface GTK basique avec liste.
-* [x] Analyse récursive optionnelle.
-* [x] Boutons de sélection multiple fonctionnels.
-* [x] Implémentation bouton Renommer (+ dialogue résumé).
-* [ ] **Tester intensivement la fonction Renommer.**
-* [ ] Boutons pour Export CSV / JSON.
-* [ ] Améliorer l'alignement des colonnes dans la liste.
-* [ ] Améliorer le retour visuel pour les doublons.
-* [ ] Corriger les avertissements `deprecated clone!`.
-* [ ] Ajouter plus de gestion d'erreurs (permissions, I/O pendant renommage).
-* [ ] Ajouter une icône d'application.
-* [ ] Considérer des options de configuration (format du nom, etc.).
-* [ ] Créer des paquets d'installation (MSI, Deb, etc.) pour faciliter la distribution.
-* [ ] (Optionnel) Utiliser un script `build.rs` pour automatiser la copie des DLLs sous Windows pour les développeurs.
-
 ---
 
 ## 🧪 Dépendances principales
 
-* **GUI:** [gtk4](https://crates.io/crates/gtk4), [glib](https://crates.io/crates/glib)
+* **GUI:** [gtk4](https://crates.io/crates/gtk4), [glib](https://crates.io/crates/glib), [once_cell](https://crates.io/crates/once_cell) (pour Regex statique)
 * **Core:** [chrono](https://crates.io/crates/chrono), [exif](https://crates.io/crates/exif), [blake3](https://crates.io/crates/blake3), [serde](https://serde.rs/), [csv](https://crates.io/crates/csv), [serde_json](https://crates.io/crates/serde_json), [walkdir](https://crates.io/crates/walkdir), [regex](https://crates.io/crates/regex), [once_cell](https://crates.io/crates/once_cell)
 
 ---
