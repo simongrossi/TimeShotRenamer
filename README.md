@@ -151,6 +151,39 @@ TimeShotRenamer/
 
 ---
 
+## 📝 Exemple de Nom de Fichier Généré (par `timeshot_core`)
+
+Fichier original : `IMG_001.jpg` dans le dossier `Vacances_Ete`.
+Date EXIF : `2025-07-15 10:30:00`
+
+Nom généré possible : `2025-07-15_103000_Vacances_Ete_IMG_001.jpg`
+
+---
+
+## 🛠️ TODO / Améliorations Possibles
+
+* [x] Analyse EXIF et noms de fichiers.
+* [x] Génération de noms proposés + gestion rafales.
+* [x] Hash et détection doublons.
+* [x] Interface GTK basique avec liste.
+* [x] Analyse récursive optionnelle.
+* [x] Boutons de sélection multiple fonctionnels.
+* [x] Implémentation bouton Renommer (+ dialogue résumé).
+* [x] Layout vertical de l'interface.
+* [x] Filtres : Exclure extensions, Regex nom, Masquer si nom proposé.
+* [x] Filtre : Masquer si nom original contient déjà une date.
+* [ ] **Tester intensivement la fonction Renommer.**
+* [ ] Boutons pour Export CSV / JSON.
+* [ ] Améliorer l'alignement/affichage des colonnes dans la liste.
+* [ ] Améliorer le retour visuel pour les doublons.
+* [ ] Corriger les avertissements `deprecated clone!`, `MessageDialog`, `FileChooserDialog`, etc.
+* [ ] Corriger l'avertissement `dead_code` pour `connect_search_button`.
+* [ ] Ajouter plus de gestion d'erreurs (permissions, I/O pendant renommage).
+* [ ] Ajouter une icône d'application.
+* [ ] Considérer des options de configuration (format du nom, regex de date, etc.).
+* [ ] Créer des paquets d'installation (MSI, Deb, etc.) pour faciliter la distribution.
+* [ ] (Optionnel) Utiliser un script `build.rs` pour automatiser la copie des DLLs sous Windows pour les développeurs.
+
 ---
 
 ## 🧪 Dépendances principales
