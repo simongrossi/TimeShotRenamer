@@ -69,6 +69,15 @@
         6.  Il peut être nécessaire de configurer Rust pour utiliser la toolchain GNU : `rustup default stable-x86_64-pc-windows-gnu`.
         7.  Redémarrez votre terminal après avoir modifié les variables d'environnement.
 
+        **‼️ Note Importante pour l'Exécution sous Windows ‼️**
+        Après avoir compilé le projet avec `cargo build` ou `cargo run`, il est très probable que l'application ne se lance pas directement et affiche une erreur `0xc0000139 STATUS_ENTRYPOINT_NOT_FOUND`.
+        Ceci est dû au fait que l'exécutable ne trouve pas les fichiers DLL de GTK requis au moment de l'exécution.
+        **Solution :** Copiez manuellement les fichiers DLL nécessaires depuis votre installation MSYS2 vers le dossier de sortie de Cargo :
+            * **Source :** Le dossier `bin` de votre installation MinGW64 (par défaut `C:\msys64\mingw64\bin`).
+            * **Destination :** Le dossier `target/debug` (après `cargo run` ou `cargo build`) ou `target/release` (après `cargo run --release` ou `cargo build --release`) dans le répertoire de votre projet.
+            * **Fichiers à copier (au minimum) :** `libgtk-4-1.dll`, `libglib-2.0-0.dll`, `libgobject-2.0-0.dll`, `libgio-2.0-0.dll`, `libpango-1.0-0.dll`, `libgdk_pixbuf-2.0-0.dll`, `libcairo-2.dll`, `libharfbuzz-0.dll`, et potentiellement d'autres (`zlib1.dll`, `libpng16-16.dll`, `fribidi-0.dll`, etc.) si l'erreur persiste.
+        Cette copie peut être nécessaire après chaque `cargo clean`.
+
     * **🍎 macOS:**
         Utilisez [Homebrew](https://brew.sh/):
         ```bash
@@ -81,30 +90,51 @@
 
 1.  Clonez le dépôt (ou naviguez dans le dossier du projet).
 2.  Ouvrez un terminal dans le dossier racine du projet (`TimeShotRenamer`).
-3.  Compilez et lancez l'interface graphique :
+3.  Compilez l'interface graphique. **Note :** Comme ce projet est un espace de travail (workspace) Cargo, si vous lancez depuis la racine, vous devez spécifier quel paquet compiler/exécuter avec l'option `--package` (ou `-p`).
     ```bash
-    # Recommandé pour tester la version optimisée
+    # Compiler et lancer en mode Debug (depuis la racine)
+    cargo run --package timeshot_gui
+
+    # Compiler et lancer en mode Release (optimisé, depuis la racine)
     cargo run --release --package timeshot_gui
 
-    # Ou pour le développement/débogage
+    # Alternative : se placer dans le dossier de la GUI d'abord
     # cd timeshot_gui
     # cargo run
     ```
+4.  **(Windows uniquement, si nécessaire)** Si l'application ne se lance pas (erreur `0xc0000139`), copiez les DLLs comme expliqué dans la section d'installation Windows ci-dessus, puis relancez l'exécutable directement depuis `target/debug` ou `target/release`.
 
 ---
 
 ## 📦 Structure du projet
 
 TimeShotRenamer/
-├── timeshot_core/      # Bibliothèque principale (logique métier)
-│   ├── Cargo.toml
-│   └── src/
-├── timeshot_gui/       # Interface graphique GTK4
-│   ├── Cargo.toml
-│   └── src/
-├── .gitignore          # Fichiers ignorés par Git
-├── LICENSE             # Licence MIT
-└── README.md           # Ce fichier
+├── .git/               # (Dossier caché de Git)
+├── .gitignore          # Fichiers et dossiers ignorés par Git
+├── assets/             # (Optionnel) Ressources, comme les captures d'écran
+│   └── screenshot.png  #   (Exemple)
+├── Cargo.lock          # Fichier de lock des dépendances
+├── Cargo.toml          # Manifeste racine (définit le workspace)
+├── LICENSE             # Fichier de licence (MIT)
+├── README.md           # Ce fichier d'information
+│
+├── timeshot_core/      # Crate pour la logique métier (bibliothèque)
+│   ├── Cargo.toml      #   Manifeste de la crate core
+│   └── src/            #   Code source de la crate core
+│       ├── exif/       #     Module de lecture EXIF
+│       ├── export/     #     Module d'export (CSV, JSON)
+│       ├── filename/   #     Module d'analyse des noms de fichiers
+│       ├── hash/       #     Module de hachage (BLAKE3)
+│       ├── renamer/    #     Module de génération des nouveaux noms
+│       ├── lib.rs      #     Point d'entrée de la bibliothèque core
+│       └── types.rs    #     Définitions des structures (FileAnalysis, etc.)
+│
+└── timeshot_gui/       # Crate pour l'interface graphique (binaire)
+├── Cargo.toml      #   Manifeste de la crate GUI
+└── src/            #   Code source de la crate GUI
+├── file_data_item.rs # Définition GObject pour les items de la liste
+├── main.rs     #     Point d'entrée de l'application GUI
+└── ui.rs       #     Construction de l'interface GTK4
 
 
 ---
@@ -135,7 +165,8 @@ Nom généré possible : `2025-07-15_103000_Vacances_Ete_IMG_001.jpg`
 * [ ] Ajouter plus de gestion d'erreurs (permissions, I/O pendant renommage).
 * [ ] Ajouter une icône d'application.
 * [ ] Considérer des options de configuration (format du nom, etc.).
-* [ ] Créer des paquets d'installation (MSI, Deb, etc.).
+* [ ] Créer des paquets d'installation (MSI, Deb, etc.) pour faciliter la distribution.
+* [ ] (Optionnel) Utiliser un script `build.rs` pour automatiser la copie des DLLs sous Windows pour les développeurs.
 
 ---
 
