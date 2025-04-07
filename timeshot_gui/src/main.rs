@@ -2,6 +2,7 @@
 
 mod ui;
 mod file_data_item; // Assurez-vous que ce module est bien déclaré
+mod search_handler;
 
 use gtk4::prelude::*;
 use gtk4::Application;

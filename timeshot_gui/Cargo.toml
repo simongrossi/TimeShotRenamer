@@ -7,3 +7,4 @@ edition = "2021"
 gtk4 = "0.9"
 timeshot_core = { path = "../timeshot_core" }
 once_cell = "1.18"
+regex = "1"
