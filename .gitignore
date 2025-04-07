@@ -27,6 +27,5 @@
 # Operating system / Misc files
 .DS_Store
 Thumbs.db
-=======
-/target
->>>>>>> 625bdd35065cdd6eb7ecea58f3f4f80fc1fddd0e
+
+Cargo.lock
